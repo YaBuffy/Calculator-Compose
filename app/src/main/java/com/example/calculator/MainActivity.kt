@@ -13,11 +13,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.calculator.ui.theme.CalculatorTheme
 
 class MainActivity : ComponentActivity() {
@@ -26,17 +32,32 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CalculatorTheme {
-                val vm = viewModel<CalculatorViewModel>()
+                val navController = rememberNavController()
+                val vm: CalculatorViewModel = viewModel(
+                    factory = CalculatorViewModelFactory((LocalContext.current.applicationContext as App).historyDao)
+                )
                 val state = vm.state
+                val history  by vm.history.collectAsState(emptyList())
                 val buttonSpacing = 8.dp
-                MainScreen(
-                    state = state,
-                    onAction = vm::onAction,
-                    buttonSpacing = buttonSpacing,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(color = MaterialTheme.colorScheme.background)
-                        .systemBarsPadding())
+
+                NavHost(navController = navController, startDestination = "calculator"){
+                    composable("calculator"){
+                        MainScreen(
+                            state = state,
+                            onAction = vm::onAction,
+                            buttonSpacing = buttonSpacing,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(color = MaterialTheme.colorScheme.background)
+                                .systemBarsPadding(),
+                            onHistoryClick = {navController.navigate("history")})
+                    }
+                    composable("history"){
+                        HistoryScreen(
+                            history,
+                            onBack = {navController.popBackStack()})
+                    }
+                }
             }
         }
     }

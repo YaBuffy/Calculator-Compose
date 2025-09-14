@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,13 +27,19 @@ fun MainScreen(
     state: CalculatorState,
     buttonSpacing: Dp = 8.dp,
     modifier: Modifier = Modifier,
-    onAction: (CalculatorActions) -> Unit
+    onAction: (CalculatorActions) -> Unit,
+    onHistoryClick: () -> Unit
 ){
     Box(modifier = modifier){
+        IconButton(onClick = onHistoryClick) { Icon(
+            imageVector = Icons.Filled.History,
+            contentDescription = "history",
+            tint = MaterialTheme.colorScheme.onBackground) }
         Column(modifier = Modifier
             .fillMaxWidth()
             .align(Alignment.BottomCenter),
             verticalArrangement = Arrangement.spacedBy(buttonSpacing)) {
+
             Text(
                 text = state.number1 + (state.operation?.symbol ?: "") + state.number2,
                 textAlign = TextAlign.End,
@@ -38,7 +48,8 @@ fun MainScreen(
                     .padding(vertical = 32.dp),
                 fontSize = 80.sp,
                 color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 2
+                maxLines = 2,
+                lineHeight = 80.sp
             )
             //First Row
             Row(Modifier.fillMaxWidth(),

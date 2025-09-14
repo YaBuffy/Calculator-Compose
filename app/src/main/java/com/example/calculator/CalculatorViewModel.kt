@@ -4,10 +4,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.calculator.historyDB.HistoryDAO
+import com.example.calculator.historyDB.HistoryEntity
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 
-class CalculatorViewModel: ViewModel() {
+class CalculatorViewModel(private val dao: HistoryDAO): ViewModel() {
 
     var state by mutableStateOf(CalculatorState())
+
+    val history: Flow<List<HistoryEntity>> = dao.getAllHistory()
 
     fun onAction(action: CalculatorActions){
         when(action){
@@ -39,6 +46,14 @@ class CalculatorViewModel: ViewModel() {
                 is CalculatorOperation.Multiply -> number1*number2
                 null -> return
             }
+
+            val expression = "${state.number1} ${state.operation?.symbol ?: ""} ${state.number2}"
+            val historyEntity = HistoryEntity(expression = expression, result = result.toString().take(8))
+
+            viewModelScope.launch {
+                dao.insert(historyEntity)
+            }
+
             state = state.copy(
                 number1 = result.toString().take(8),
                 operation = null)
