@@ -26,7 +26,3 @@ This app demonstrates the use of **ViewModel**, **State**, **Room Database**, **
 - MVVM architecture with ViewModel
 - Room Database
 - Jetpack Navigation Compose
-
-
-##
-git clone https://github.com/yourusername/calculator-app.git
